@@ -38,9 +38,11 @@ export default function Page() {
     setLoading(true);
 
     try {
+      // Simulate API delay
       await new Promise((res) => setTimeout(res, 1000));
+      // Hardcoded admin credentials:
       if (email === "admin@example.com" && password === "password123") {
-        router.push("/admin");
+        router.push("/Admin");
       } else {
         setGeneralError("Invalid email or password.");
         setLoading(false);
@@ -54,9 +56,7 @@ export default function Page() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4 font-sans">
       <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-8">
-        <h1 className="text-3xl font-bold text-center text-gray-900 mb-6">
-          Admin Login
-        </h1>
+        <h1 className="text-3xl font-bold text-center text-gray-900 mb-6">Admin Login</h1>
 
         <form onSubmit={handleSubmit} noValidate>
           <div className="mb-5">
@@ -64,19 +64,18 @@ export default function Page() {
               Email
             </label>
             <input
-  id="email"
-  name="email"
-  type="email"
-  value={email}
-  onChange={(e) => setEmail(e.target.value)}
-  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition text-gray-800 ${
-    errors.email ? "border-red-500 focus:ring-red-400" : "border-gray-300 focus:ring-blue-400"
-  }`}
-  placeholder="you@example.com"
-  aria-invalid={errors.email ? "true" : "false"}
-  aria-describedby={errors.email ? "email-error" : undefined}
-/>
-
+              id="email"
+              name="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition text-gray-800 ${
+                errors.email ? "border-red-500 focus:ring-red-400" : "border-gray-300 focus:ring-blue-400"
+              }`}
+              placeholder="you@example.com"
+              aria-invalid={errors.email ? "true" : "false"}
+              aria-describedby={errors.email ? "email-error" : undefined}
+            />
             {errors.email && (
               <p id="email-error" className="mt-1 text-sm text-red-600" role="alert">
                 {errors.email}
@@ -89,20 +88,19 @@ export default function Page() {
               Password
             </label>
             <div className="relative">
-             <input
-  id="password"
-  name="password"
-  type={showPassword ? "text" : "password"}
-  value={password}
-  onChange={(e) => setPassword(e.target.value)}
-  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition text-gray-800 ${
-    errors.password ? "border-red-500 focus:ring-red-400" : "border-gray-300 focus:ring-blue-400"
-  }`}
-  placeholder="••••••••"
-  aria-invalid={errors.password ? "true" : "false"}
-  aria-describedby={errors.password ? "password-error" : undefined}
-/>
-
+              <input
+                id="password"
+                name="password"
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition text-gray-800 ${
+                  errors.password ? "border-red-500 focus:ring-red-400" : "border-gray-300 focus:ring-blue-400"
+                }`}
+                placeholder="••••••••"
+                aria-invalid={errors.password ? "true" : "false"}
+                aria-describedby={errors.password ? "password-error" : undefined}
+              />
               <button
                 type="button"
                 onClick={() => setShowPassword((s) => !s)}
@@ -140,8 +138,8 @@ export default function Page() {
                 viewBox="0 0 24 24"
                 aria-hidden="true"
               >
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
               </svg>
             ) : (
               "Sign in"
