@@ -1,75 +1,134 @@
 "use client";
 
-import { useState } from 'react';
+import React from "react";
+import Link from "next/link";  // <-- Import Link for navigation
+import { Users, Bus, Map, Bell } from "lucide-react";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 
-export default function DashboardPage() {
-    const [stats] = useState({
-        students: 120,
-        drivers: 15,
-        routes: 8,
-        vehicles: 10,
-    });
+const stats = [
+  { title: "Total Students", value: "320", icon: Users },
+  { title: "Active Drivers", value: "18", icon: Bus },
+  { title: "Routes", value: "12", icon: Map },
+  { title: "Pending Requests", value: "7", icon: Bell },
+];
 
-    const cards = [
-        { id: 'students', label: 'Total Students', value: stats.students, color: 'bg-blue-600' },
-        { id: 'drivers', label: 'Total Drivers', value: stats.drivers, color: 'bg-green-600' },
-        { id: 'routes', label: 'Total Routes', value: stats.routes, color: 'bg-amber-600' },
-        { id: 'vehicles', label: 'Total Vehicles', value: stats.vehicles, color: 'bg-purple-600' },
-    ];
+const chartData = [
+  { day: "Mon", rides: 120 },
+  { day: "Tue", rides: 140 },
+  { day: "Wed", rides: 160 },
+  { day: "Thu", rides: 150 },
+  { day: "Fri", rides: 180 },
+];
 
-    return (
-        <main className="p-6 min-h-screen bg-gray-50">
-            <header className="mb-6">
-                <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>
-                <p className="text-sm text-gray-600">Overview of key metrics</p>
-            </header>
+export default function AdminDashboard() {
+  return (
+    <div>
+      <h1 className="text-3xl font-bold mb-6">Admin Dashboard – Just For Lucky</h1>
 
-            <section aria-label="Overview cards" className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-                {cards.map((c) => (
-                    <article
-                        key={c.id}
-                        role="group"
-                        aria-labelledby={`${c.id}-title`}
-                        className="bg-white rounded-lg shadow-sm overflow-hidden focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-300"
-                    >
-                        <div className={`${c.color} px-4 py-3`}>
-                            <h2 id={`${c.id}-title`} className="text-sm font-medium text-white">
-                                {c.label}
-                            </h2>
-                        </div>
-                        <div className="p-4">
-                            <p className="text-3xl font-bold text-gray-900" aria-live="polite">
-                                {c.value}
-                            </p>
-                            <p className="text-sm text-gray-500 mt-1">Current</p>
-                        </div>
-                    </article>
-                ))}
-            </section>
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        {stats.map((item, i) => (
+          <div
+            key={i}
+            className="bg-white p-4 rounded-xl shadow flex items-center gap-4"
+          >
+            <item.icon className="w-8 h-8 text-blue-600" />
+            <div>
+              <p className="text-gray-500">{item.title}</p>
+              <p className="text-xl font-semibold">{item.value}</p>
+            </div>
+          </div>
+        ))}
+      </div>
 
-            <section className="mt-8 grid gap-6 grid-cols-1 lg:grid-cols-2" aria-label="Charts and summaries">
-                <div className="bg-white rounded-lg shadow-sm p-4">
-                    <h3 className="text-lg font-medium text-gray-900">Daily Pickups</h3>
-                    <div
-                        role="img"
-                        aria-label="Placeholder for Daily Pickups chart"
-                        className="mt-4 h-40 rounded-md border-2 border-dashed border-gray-200 bg-gray-50 flex items-center justify-center text-gray-400"
-                    >
-                        Chart placeholder
-                    </div>
-                </div>
+      {/* Chart */}
+      <div className="bg-white p-6 rounded-xl shadow mb-6">
+        <h2 className="text-xl font-semibold mb-4">Weekly Ride Activity</h2>
+        <ResponsiveContainer width="100%" height={250}>
+          <LineChart data={chartData}>
+            <XAxis dataKey="day" />
+            <YAxis />
+            <Tooltip />
+            <Line type="monotone" dataKey="rides" strokeWidth={3} />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
 
-                <div className="bg-white rounded-lg shadow-sm p-4">
-                    <h3 className="text-lg font-medium text-gray-900">Early Leave Requests Count</h3>
-                    <div
-                        role="img"
-                        aria-label="Placeholder for Early Leave Requests Count chart"
-                        className="mt-4 h-40 rounded-md border-2 border-dashed border-gray-200 bg-gray-50 flex items-center justify-center text-gray-400"
-                    >
-                        Chart placeholder
-                    </div>
-                </div>
-            </section>
-        </main>
-    );
+      {/* Recent Requests */}
+      <div className="bg-white p-6 rounded-xl shadow mb-6">
+        <h2 className="text-xl font-semibold mb-4">Recent Student Requests</h2>
+        <table className="w-full text-left">
+          <thead>
+            <tr className="text-gray-500 border-b">
+              <th className="py-2">Student</th>
+              <th>Type</th>
+              <th>Route</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr className="border-b">
+              <td className="py-2">Ali Khan</td>
+              <td>Early Drop</td>
+              <td>Route A</td>
+              <td className="text-yellow-600">Pending</td>
+            </tr>
+            <tr className="border-b">
+              <td className="py-2">Ayesha Noor</td>
+              <td>Carpool</td>
+              <td>Route B</td>
+              <td className="text-green-600">Approved</td>
+            </tr>
+            <tr>
+              <td className="py-2">Usman Raza</td>
+              <td>Early Drop</td>
+              <td>Route C</td>
+              <td className="text-red-600">Rejected</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      {/* Navigation Buttons */}
+      <div className="flex space-x-4 mt-6">
+        <Link
+          href="/Admin/ManageRoutes"
+          
+        >
+          Manage Routes
+        </Link>
+        <Link
+          href="/Admin/ManageVehicles"
+         
+        >
+          Manage Vehicles
+        </Link>
+        <Link
+          href="/Admin/Approvals"
+          
+        >
+          Approvals
+        </Link>
+        <Link
+          href="/Admin/Notifications"
+          
+        >
+          Notifications
+        </Link>
+        <Link
+          href="/Admin/Reports"
+          
+        >
+          Reports
+        </Link>
+      </div>
+    </div>
+  );
 }
