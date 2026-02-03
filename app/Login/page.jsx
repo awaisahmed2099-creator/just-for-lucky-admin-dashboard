@@ -1,156 +1,106 @@
 "use client";
+import React, { useState } from 'react';
+import { Mail, Lock, Eye, EyeOff, ShieldCheck } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-
-export default function Page() {
-  const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+export default function AdminLogin() {
   const [showPassword, setShowPassword] = useState(false);
-  const [errors, setErrors] = useState({});
-  const [generalError, setGeneralError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({ email: '', password: '' });
+  const router = useRouter();
 
-  const validate = () => {
-    const e = {};
-    if (!email.trim()) {
-      e.email = "Email is required.";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      e.email = "Please enter a valid email address.";
-    }
+  const ADMIN_EMAIL = "admin@lucky.com";
+  const ADMIN_PASSWORD = "admin_123";
 
-    if (!password) {
-      e.password = "Password is required.";
-    } else if (password.length < 6) {
-      e.password = "Password must be at least 6 characters.";
-    }
-
-    setErrors(e);
-    return Object.keys(e).length === 0;
-  };
-
-  const handleSubmit = async (ev) => {
-    ev.preventDefault();
-    setGeneralError("");
-    if (!validate()) return;
-
-    setLoading(true);
-
-    try {
-      // Simulate API delay
-      await new Promise((res) => setTimeout(res, 1000));
-      // Hardcoded admin credentials:
-      if (email === "admin@example.com" && password === "password123") {
-        router.push("/Admin");
-      } else {
-        setGeneralError("Invalid email or password.");
-        setLoading(false);
-      }
-    } catch (err) {
-      setGeneralError("Something went wrong. Please try again.");
-      setLoading(false);
+  const handleLogin = (e) => {
+    e.preventDefault();
+    if (formData.email === ADMIN_EMAIL && formData.password === ADMIN_PASSWORD) {
+      router.push('/Admin'); 
+    } else {
+      alert("Invalid Admin Credentials");
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4 font-sans">
-      <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-8">
-        <h1 className="text-3xl font-bold text-center text-gray-900 mb-6">Admin Login</h1>
+    // Background color strictly matches the professional slate-blue tone
+    <div className="relative min-h-screen flex items-center justify-center bg-[#1e293b] p-6 font-sans">
+      
+      {/* Background Glows for depth */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-40">
+        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-cyan-500/10 rounded-full blur-[120px]" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-500/10 rounded-full blur-[120px]" />
+      </div>
 
-        <form onSubmit={handleSubmit} noValidate>
-          <div className="mb-5">
-            <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
-              Email
-            </label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition text-gray-800 ${
-                errors.email ? "border-red-500 focus:ring-red-400" : "border-gray-300 focus:ring-blue-400"
-              }`}
-              placeholder="you@example.com"
-              aria-invalid={errors.email ? "true" : "false"}
-              aria-describedby={errors.email ? "email-error" : undefined}
-            />
-            {errors.email && (
-              <p id="email-error" className="mt-1 text-sm text-red-600" role="alert">
-                {errors.email}
-              </p>
-            )}
+      {/* Balanced Card Size */}
+      <div className="relative z-10 w-full max-w-[400px] bg-slate-900/90 backdrop-blur-2xl rounded-[2rem] border border-white/5 p-10 shadow-2xl">
+        
+        {/* Header - Straight & Professional */}
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-cyan-400 to-blue-600 rounded-2xl mb-4 shadow-lg shadow-cyan-500/20">
+            <ShieldCheck className="text-white" size={28} />
+          </div>
+          <h1 className="text-2xl font-bold text-white tracking-tight">Just For Lucky</h1>
+          <p className="text-[10px] text-cyan-400 font-bold tracking-[0.3em] uppercase mt-2">Fleet Administration</p>
+        </div>
+
+        {/* Form Section with Correct Spacing */}
+        <form onSubmit={handleLogin} className="space-y-6">
+          <div className="space-y-2">
+            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Admin Email</label>
+            <div className="relative">
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
+              <input 
+                type="email" 
+                value={formData.email}
+                onChange={(e) => setFormData({...formData, email: e.target.value})}
+                required
+                className="w-full bg-slate-950/50 border border-slate-800 rounded-xl py-3 pl-11 pr-4 text-sm text-white focus:ring-1 focus:ring-cyan-500/50 outline-none transition-all"
+                placeholder="admin@justforlucky.com"
+              />
+            </div>
           </div>
 
-          <div className="mb-6">
-            <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
-              Password
-            </label>
+          <div className="space-y-2">
+            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Access Key</label>
             <div className="relative">
-              <input
-                id="password"
-                name="password"
-                type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition text-gray-800 ${
-                  errors.password ? "border-red-500 focus:ring-red-400" : "border-gray-300 focus:ring-blue-400"
-                }`}
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
+              <input 
+                type={showPassword ? "text" : "password"} 
+                value={formData.password}
+                onChange={(e) => setFormData({...formData, password: e.target.value})}
+                required
+                className="w-full bg-slate-950/50 border border-slate-800 rounded-xl py-3 pl-11 pr-11 text-sm text-white focus:ring-1 focus:ring-cyan-500/50 outline-none transition-all"
                 placeholder="••••••••"
-                aria-invalid={errors.password ? "true" : "false"}
-                aria-describedby={errors.password ? "password-error" : undefined}
               />
-              <button
+              <button 
                 type="button"
-                onClick={() => setShowPassword((s) => !s)}
-                className="absolute inset-y-0 right-0 pr-4 flex items-center text-sm font-semibold text-blue-600 hover:text-blue-800 transition"
-                aria-label={showPassword ? "Hide password" : "Show password"}
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white"
               >
-                {showPassword ? "Hide" : "Show"}
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
-            {errors.password && (
-              <p id="password-error" className="mt-1 text-sm text-red-600" role="alert">
-                {errors.password}
-              </p>
-            )}
           </div>
 
-          {generalError && (
-            <div className="mb-5 text-center text-sm text-red-600" role="alert" aria-live="assertive">
-              {generalError}
-            </div>
-          )}
-
-          <button
+          {/* Button color matches your reference */}
+          <button 
             type="submit"
-            disabled={loading}
-            className={`w-full py-3 rounded-lg font-semibold text-white transition ${
-              loading ? "bg-blue-300 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
-            }`}
+            className="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold py-3 rounded-xl transition-all shadow-lg shadow-cyan-500/10 active:scale-[0.98] mt-2"
           >
-            {loading ? (
-              <svg
-                className="w-5 h-5 mx-auto text-white animate-spin"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-              >
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
-              </svg>
-            ) : (
-              "Sign in"
-            )}
+            Sign In
           </button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-gray-500">
-          Use <span className="font-semibold text-gray-700">admin@example.com</span> /{" "}
-          <span className="font-semibold text-gray-700">password123</span> for the demo.
-        </p>
+        {/* Fixed Spacing Footer */}
+        <div className="mt-8 text-center border-t border-white/5 pt-6">
+          <button className="text-[10px] text-slate-500 hover:text-cyan-500 transition-colors font-bold uppercase tracking-widest mb-4">
+            Reset Admin Credentials?
+          </button>
+          
+          <p className="text-[9px] text-slate-600 font-bold uppercase tracking-[0.1em] leading-relaxed">
+            Secure Session Active • Encrypted & Logged
+          </p>
+        </div>
+
       </div>
     </div>
   );

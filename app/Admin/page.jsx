@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";  // <-- Import Link for navigation
-import { Users, Bus, Map, Bell } from "lucide-react";
+import Link from "next/link";
+import { Users, Bus, Map, Bell, TrendingUp } from "lucide-react";
 import {
   LineChart,
   Line,
@@ -10,13 +10,14 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
+  CartesianGrid,
 } from "recharts";
 
 const stats = [
-  { title: "Total Students", value: "320", icon: Users },
-  { title: "Active Drivers", value: "18", icon: Bus },
-  { title: "Routes", value: "12", icon: Map },
-  { title: "Pending Requests", value: "7", icon: Bell },
+  { title: "Total Students", value: "320", icon: Users, color: "text-blue-400" },
+  { title: "Active Drivers", value: "18", icon: Bus, color: "text-cyan-400" },
+  { title: "Routes", value: "12", icon: Map, color: "text-indigo-400" },
+  { title: "Pending Requests", value: "7", icon: Bell, color: "text-orange-400" },
 ];
 
 const chartData = [
@@ -29,106 +30,75 @@ const chartData = [
 
 export default function AdminDashboard() {
   return (
-    <div>
-      <h1 className="text-3xl font-bold mb-6">Admin Dashboard – Just For Lucky</h1>
+    <div className="space-y-6 animate-in fade-in duration-500">
+      
+      {/* System Status - Clean & Floating */}
+      <div className="flex justify-end">
+        <div className="bg-slate-900/50 px-4 py-1.5 rounded-full border border-cyan-500/20 text-[10px] font-bold text-cyan-400 uppercase tracking-widest shadow-lg shadow-cyan-500/5">
+          System Live
+        </div>
+      </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      {/* Stats Cards - Matches your Theme */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {stats.map((item, i) => (
-          <div
-            key={i}
-            className="bg-white p-4 rounded-xl shadow flex items-center gap-4"
-          >
-            <item.icon className="w-8 h-8 text-blue-600" />
-            <div>
-              <p className="text-gray-500">{item.title}</p>
-              <p className="text-xl font-semibold">{item.value}</p>
+          <div key={i} className="bg-slate-900/60 border border-white/5 p-5 rounded-3xl hover:border-cyan-500/30 transition-all shadow-xl group">
+            <div className="flex justify-between items-center mb-3">
+              <item.icon className={`${item.color} group-hover:scale-110 transition-transform`} size={24} />
+              <span className="text-[10px] text-slate-500 font-bold uppercase tracking-tighter">Real-time</span>
             </div>
+            <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider">{item.title}</p>
+            <p className="text-2xl font-bold text-white mt-1">{item.value}</p>
           </div>
         ))}
       </div>
 
-      {/* Chart */}
-      <div className="bg-white p-6 rounded-xl shadow mb-6">
-        <h2 className="text-xl font-semibold mb-4">Weekly Ride Activity</h2>
-        <ResponsiveContainer width="100%" height={250}>
-          <LineChart data={chartData}>
-            <XAxis dataKey="day" />
-            <YAxis />
-            <Tooltip />
-            <Line type="monotone" dataKey="rides" strokeWidth={3} />
-          </LineChart>
-        </ResponsiveContainer>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Weekly Chart - Modern Styling */}
+        <div className="lg:col-span-2 bg-slate-900/60 p-6 rounded-3xl border border-white/5 shadow-xl">
+          <h2 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
+            <TrendingUp size={20} className="text-cyan-500" /> Weekly Ride Activity
+          </h2>
+          <div className="h-[280px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#ffffff05" vertical={false} />
+                <XAxis dataKey="day" stroke="#64748b" fontSize={12} tickLine={false} axisLine={false} />
+                <YAxis stroke="#64748b" fontSize={12} tickLine={false} axisLine={false} />
+                <Tooltip 
+                  contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #ffffff10', borderRadius: '12px' }}
+                  itemStyle={{ color: '#22d3ee' }}
+                />
+                <Line type="monotone" dataKey="rides" stroke="#06b6d4" strokeWidth={4} dot={{ fill: '#06b6d4', r: 4 }} activeDot={{ r: 6, stroke: '#1e293b', strokeWidth: 2 }} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Recent Requests - Optimized List */}
+        <div className="bg-slate-900/60 p-6 rounded-3xl border border-white/5 shadow-xl">
+          <h2 className="text-lg font-bold text-white mb-6 tracking-tight">Recent Requests</h2>
+          <div className="space-y-4">
+            {[
+              { name: "Ali Khan", type: "Early Drop", status: "Pending", color: "text-orange-400", bg: "bg-orange-400/10" },
+              { name: "Ayesha Noor", type: "Carpool", status: "Approved", color: "text-emerald-400", bg: "bg-emerald-400/10" },
+              { name: "Usman Raza", type: "Early Drop", status: "Rejected", color: "text-red-400", bg: "bg-red-400/10" },
+            ].map((req, idx) => (
+              <div key={idx} className="flex justify-between items-center p-4 rounded-2xl bg-slate-800/40 border border-white/5 hover:bg-slate-800/60 transition-colors">
+                <div>
+                  <p className="text-sm font-bold text-white">{req.name}</p>
+                  <p className="text-[10px] text-slate-500 uppercase font-bold tracking-widest">{req.type}</p>
+                </div>
+                <span className={`text-[9px] font-black px-2.5 py-1 rounded-lg ${req.bg} ${req.color} uppercase tracking-tighter`}>
+                  {req.status}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
-      {/* Recent Requests */}
-      <div className="bg-white p-6 rounded-xl shadow mb-6">
-        <h2 className="text-xl font-semibold mb-4">Recent Student Requests</h2>
-        <table className="w-full text-left">
-          <thead>
-            <tr className="text-gray-500 border-b">
-              <th className="py-2">Student</th>
-              <th>Type</th>
-              <th>Route</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr className="border-b">
-              <td className="py-2">Ali Khan</td>
-              <td>Early Drop</td>
-              <td>Route A</td>
-              <td className="text-yellow-600">Pending</td>
-            </tr>
-            <tr className="border-b">
-              <td className="py-2">Ayesha Noor</td>
-              <td>Carpool</td>
-              <td>Route B</td>
-              <td className="text-green-600">Approved</td>
-            </tr>
-            <tr>
-              <td className="py-2">Usman Raza</td>
-              <td>Early Drop</td>
-              <td>Route C</td>
-              <td className="text-red-600">Rejected</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      {/* Navigation Buttons */}
-      <div className="flex space-x-4 mt-6">
-        <Link
-          href="/Admin/ManageRoutes"
-          
-        >
-          Manage Routes
-        </Link>
-        <Link
-          href="/Admin/ManageVehicles"
-         
-        >
-          Manage Vehicles
-        </Link>
-        <Link
-          href="/Admin/Approvals"
-          
-        >
-          Approvals
-        </Link>
-        <Link
-          href="/Admin/Notifications"
-          
-        >
-          Notifications
-        </Link>
-        <Link
-          href="/Admin/Reports"
-          
-        >
-          Reports
-        </Link>
-      </div>
+      {/* Buttons section removed strictly as requested */}
     </div>
   );
 }
