@@ -1,60 +1,77 @@
 "use client";
 
+import React from "react";
+
 export default function Table({ columns, data }) {
   return (
-    <div className="overflow-x-auto">
-      <table className="min-w-full bg-white border border-gray-200 rounded-md">
+    <div className="w-full overflow-hidden rounded-[24px] border border-white/5 bg-[#0f172a]/50 backdrop-blur-sm">
+      <table className="w-full text-left border-collapse table-fixed">
+        {/* Table Header */}
         <thead>
-          <tr className="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
+          <tr className="border-b border-white/10 bg-white/5">
             {columns.map((col) => (
               <th
                 key={col.key}
-                className="py-3 px-6 text-left border-b border-gray-200"
+                className="px-6 py-5 text-[11px] font-black text-slate-500 uppercase tracking-[0.2em] align-middle"
               >
                 {col.header}
               </th>
             ))}
-            {/** Add one extra header for actions if any column has actions */}
-            {columns.some(col => col.actions) && <th className="py-3 px-6 text-left border-b border-gray-200">Actions</th>}
           </tr>
         </thead>
-        <tbody className="text-gray-600 text-sm font-light">
-          {data.length === 0 ? (
-            <tr>
-              <td colSpan={columns.length + 1} className="text-center py-4">
-                No data found.
-              </td>
-            </tr>
-          ) : (
-            data.map((row, idx) => (
+
+        {/* Table Body */}
+        <tbody className="divide-y divide-white/5">
+          {data && data.length > 0 ? (
+            data.map((item, index) => (
               <tr
-                key={idx}
-                className={`border-b border-gray-200 hover:bg-gray-100 cursor-pointer`}
+                key={item.id || index}
+                className="hover:bg-white/[0.02] transition-colors duration-200 group"
               >
                 {columns.map((col) => (
-                  <td key={col.key} className="py-3 px-6 text-left">
-                    {col.render ? col.render(row[col.key], row) : row[col.key]}
-                  </td>
-                ))}
-                {columns.some(col => col.actions) && (
-                  <td className="py-3 px-6 text-left space-x-2">
-                    {columns
-                      .filter(col => col.actions)
-                      .map((col) =>
-                        col.actions.map(({ label, onClick }, i) => (
+                  <td
+                    key={col.key}
+                    className="px-6 py-6 text-sm text-slate-300 align-middle"
+                  >
+                    {/* Custom render */}
+                    {col.render ? (
+                      <div className="flex items-center min-h-[44px]">
+                        {col.render(item[col.key], item)}
+                      </div>
+                    ) : col.actions ? (
+                      <div className="flex items-center gap-3 min-h-[44px]">
+                        {col.actions.map((action, i) => (
                           <button
                             key={i}
-                            onClick={() => onClick(row)}
-                            className="text-blue-600 hover:underline text-sm"
+                            onClick={() => action.onClick(item)}
+                            className={`text-[10px] font-black px-4 py-2 rounded-xl transition-all ${
+                              action.variant === "danger"
+                                ? "bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white"
+                                : "bg-cyan-500/10 text-cyan-500 hover:bg-cyan-500 hover:text-black"
+                            }`}
                           >
-                            {label}
+                            {action.label}
                           </button>
-                        ))
-                      )}
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="flex items-center min-h-[44px]">
+                        {item[col.key]}
+                      </div>
+                    )}
                   </td>
-                )}
+                ))}
               </tr>
             ))
+          ) : (
+            <tr>
+              <td
+                colSpan={columns.length}
+                className="px-6 py-12 text-center text-slate-500 text-sm italic"
+              >
+                No records found.
+              </td>
+            </tr>
           )}
         </tbody>
       </table>

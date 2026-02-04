@@ -1,64 +1,45 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Table from "../../../components/Table";
 import Modal from "../../../components/Modal";
+import { Plus } from "lucide-react";
 
 export default function ManageVehicles() {
-  const [vehicles, setVehicles] = useState([
-    { id: 1, vehicleId: "VAN123", type: "Van", capacity: 12, route: "Route 1", status: "Active" },
-    { id: 2, vehicleId: "BUS456", type: "Bus", capacity: 40, route: "Route 2", status: "Inactive" },
-  ]);
+  const [vehicles, setVehicles] = useState([]);
   const [showModal, setShowModal] = useState(false);
-  const [formData, setFormData] = useState({
-    vehicleId: "",
-    type: "Van",
-    capacity: "",
-    route: "",
-    status: "Active",
-  });
   const [editId, setEditId] = useState(null);
+  const [formData, setFormData] = useState({
+    vehicleId: "", type: "Van", capacity: "", route: "", status: "Active",
+  });
 
-  const handleAddClick = () => {
-    setFormData({ vehicleId: "", type: "Van", capacity: "", route: "", status: "Active" });
-    setEditId(null);
-    setShowModal(true);
-  };
+  useEffect(() => {
+    const saved = localStorage.getItem("fleet_vehicles");
+    setVehicles(saved ? JSON.parse(saved) : [
+      { id: 1, vehicleId: "VAN123", type: "Van", capacity: 12, route: "Route 1", status: "Active" },
+    ]);
+  }, []);
 
-  const handleEditClick = (v) => {
-    setFormData({
-      vehicleId: v.vehicleId,
-      type: v.type,
-      capacity: v.capacity,
-      route: v.route,
-      status: v.status,
-    });
-    setEditId(v.id);
-    setShowModal(true);
-  };
-
-  const handleDeleteClick = (id) => {
-    if (confirm("Are you sure you want to delete this vehicle?")) {
-      setVehicles(vehicles.filter((v) => v.id !== id));
+  useEffect(() => {
+    if (vehicles.length > 0) {
+      localStorage.setItem("fleet_vehicles", JSON.stringify(vehicles));
     }
+  }, [vehicles]);
+
+  const handleAction = (v = null) => {
+    setFormData(v ? { ...v } : { vehicleId: "", type: "Van", capacity: "", route: "", status: "Active" });
+    setEditId(v?.id || null);
+    setShowModal(true);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (editId) {
-      setVehicles(
-        vehicles.map((v) =>
-          v.id === editId ? { ...v, ...formData, capacity: Number(formData.capacity) } : v
-        )
-      );
-    } else {
-      const newVehicle = {
-        id: Date.now(),
-        ...formData,
-        capacity: Number(formData.capacity),
-      };
-      setVehicles([...vehicles, newVehicle]);
-    }
+    const data = { ...formData, capacity: Number(formData.capacity) };
+
+    setVehicles(prev => editId 
+      ? prev.map(v => v.id === editId ? { ...v, ...data } : v)
+      : [...prev, { id: Date.now(), ...data }]
+    );
     setShowModal(false);
   };
 
@@ -66,98 +47,81 @@ export default function ManageVehicles() {
     { key: "vehicleId", header: "Vehicle ID" },
     { key: "type", header: "Type" },
     { key: "capacity", header: "Capacity" },
-    { key: "route", header: "Assigned Route" },
-    { key: "status", header: "Status" },
+    { key: "route", header: "Route" },
+    { 
+      key: "status", 
+      header: "Status",
+      render: (v) => (
+        <span className={`px-2 py-1 rounded-md text-[10px] font-bold ${v === 'Active' ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>
+          {v.toUpperCase()}
+        </span>
+      )
+    },
     {
       key: "actions",
       header: "Actions",
       actions: [
-        { label: "✏️ Edit", onClick: (row) => handleEditClick(row) },
-        { label: "🗑 Delete", onClick: (row) => handleDeleteClick(row.id) },
+        { label: "EDIT", onClick: handleAction },
+        { label: "DELETE", variant: "danger", onClick: (v) => confirm("Delete vehicle?") && setVehicles(vehicles.filter(i => i.id !== v.id)) },
       ],
     },
   ];
 
   return (
-    <div className="p-6 ml-64">
-      <h2 className="text-2xl font-semibold mb-4">Manage Vehicles</h2>
-      <button
-        onClick={handleAddClick}
-        className="mb-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-      >
-        ➕ Add Vehicle
-      </button>
+    <div className="p-8">
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h2 className="text-3xl font-black text-white uppercase tracking-tighter">Manage Vehicles</h2>
+          <p className="text-[10px] text-cyan-500 font-bold uppercase tracking-widest mt-1">Fleet Assets Management</p>
+        </div>
+        <button onClick={() => handleAction()} className="flex items-center gap-2 bg-[#00D7FF] text-black font-black text-[11px] uppercase px-6 py-3 rounded-2xl hover:shadow-[0_0_20px_rgba(0,215,255,0.3)] transition-all active:scale-95">
+          <Plus size={16} strokeWidth={3} /> Add Vehicle
+        </button>
+      </div>
 
       <Table columns={columns} data={vehicles} />
 
-      <Modal isOpen={showModal} onClose={() => setShowModal(false)}>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block font-semibold mb-1">Vehicle ID</label>
-            <input
-              type="text"
-              className="w-full border px-3 py-2 rounded"
-              value={formData.vehicleId}
-              onChange={(e) => setFormData({ ...formData, vehicleId: e.target.value })}
-              required
-            />
+      <Modal isOpen={showModal} onClose={() => setShowModal(false)} title={editId ? "Edit Vehicle" : "Add Vehicle"}>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Row 1: ID & Type */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-[10px] font-bold text-slate-500 uppercase mb-2 ml-1 tracking-widest">Vehicle ID</label>
+              <input className="w-full bg-[#1e293b] border border-white/5 rounded-2xl px-4 py-3 text-sm text-white outline-none focus:ring-1 focus:ring-cyan-500/50" placeholder="VAN-01" value={formData.vehicleId} onChange={e => setFormData({...formData, vehicleId: e.target.value})} required />
+            </div>
+            <div>
+              <label className="block text-[10px] font-bold text-slate-500 uppercase mb-2 ml-1 tracking-widest">Type</label>
+              <select className="w-full bg-[#1e293b] border border-white/5 rounded-2xl px-4 py-3 text-sm text-white outline-none focus:ring-1 focus:ring-cyan-500/50" value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})}>
+                <option value="Van">Van</option>
+                <option value="Bus">Bus</option>
+              </select>
+            </div>
           </div>
-          <div>
-            <label className="block font-semibold mb-1">Type</label>
-            <select
-              className="w-full border px-3 py-2 rounded"
-              value={formData.type}
-              onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-            >
-              <option>Van</option>
-              <option>Bus</option>
-            </select>
+
+          {/* Row 2: Capacity & Status */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-[10px] font-bold text-slate-500 uppercase mb-2 ml-1 tracking-widest">Capacity</label>
+              <input type="number" className="w-full bg-[#1e293b] border border-white/5 rounded-2xl px-4 py-3 text-sm text-white outline-none focus:ring-1 focus:ring-cyan-500/50" value={formData.capacity} onChange={e => setFormData({...formData, capacity: e.target.value})} required />
+            </div>
+            <div>
+              <label className="block text-[10px] font-bold text-slate-500 uppercase mb-2 ml-1 tracking-widest">Status</label>
+              <select className="w-full bg-[#1e293b] border border-white/5 rounded-2xl px-4 py-3 text-sm text-white outline-none focus:ring-1 focus:ring-cyan-500/50" value={formData.status} onChange={e => setFormData({...formData, status: e.target.value})}>
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+              </select>
+            </div>
           </div>
+
+          {/* Row 3: Assigned Route (Ab ye yahan hai!) */}
           <div>
-            <label className="block font-semibold mb-1">Capacity</label>
-            <input
-              type="number"
-              min="1"
-              className="w-full border px-3 py-2 rounded"
-              value={formData.capacity}
-              onChange={(e) => setFormData({ ...formData, capacity: e.target.value })}
-              required
-            />
+            <label className="block text-[10px] font-bold text-slate-500 uppercase mb-2 ml-1 tracking-widest">Assigned Route</label>
+            <input className="w-full bg-[#1e293b] border border-white/5 rounded-2xl px-4 py-3 text-sm text-white outline-none focus:ring-1 focus:ring-cyan-500/50 placeholder:text-slate-700" placeholder="e.g. Route Alpha" value={formData.route} onChange={e => setFormData({...formData, route: e.target.value})} />
           </div>
-          <div>
-            <label className="block font-semibold mb-1">Assigned Route</label>
-            <input
-              type="text"
-              className="w-full border px-3 py-2 rounded"
-              value={formData.route}
-              onChange={(e) => setFormData({ ...formData, route: e.target.value })}
-            />
-          </div>
-          <div>
-            <label className="block font-semibold mb-1">Status</label>
-            <select
-              className="w-full border px-3 py-2 rounded"
-              value={formData.status}
-              onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-            >
-              <option>Active</option>
-              <option>Inactive</option>
-            </select>
-          </div>
-          <div className="flex justify-end space-x-2">
-            <button
-              type="submit"
-              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-            >
-              {editId ? "Update Vehicle" : "Add Vehicle"}
-            </button>
-            <button
-              type="button"
-              onClick={() => setShowModal(false)}
-              className="bg-gray-400 text-black px-4 py-2 rounded hover:bg-gray-500"
-            >
-              Cancel
-            </button>
+
+          <div className="flex gap-4 pt-4">
+            <button type="submit" className="flex-1 py-4 bg-[#00D7FF] hover:bg-[#00c4e9] text-black font-black text-[12px] uppercase tracking-widest rounded-2xl transition-all shadow-lg active:scale-95">Confirm</button>
+            <button type="button" onClick={() => setShowModal(false)} className="flex-1 py-4 bg-slate-800 text-slate-400 font-black text-[12px] uppercase tracking-widest rounded-2xl border border-white/5">Cancel</button>
           </div>
         </form>
       </Modal>

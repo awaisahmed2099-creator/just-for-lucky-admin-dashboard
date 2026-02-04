@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect } from "react";
+import { X } from "lucide-react";
 
 export default function Modal({ isOpen, onClose, title, children }) {
-  // Close modal on ESC key press
   useEffect(() => {
     function onKeyDown(e) {
       if (e.key === "Escape") onClose();
@@ -18,27 +18,34 @@ export default function Modal({ isOpen, onClose, title, children }) {
 
   return (
     <div
-      className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50"
-      onClick={onClose} // Close when clicking outside modal
+      className="fixed inset-0 bg-slate-950/90 backdrop-blur-xl flex items-center justify-center z-[100] p-4"
+      onClick={onClose} 
     >
       <div
-        className="bg-white rounded-lg shadow-lg max-w-lg w-full p-6 relative"
-        onClick={(e) => e.stopPropagation()} // Prevent close when clicking inside modal
+        className="bg-[#0f172a] border border-white/10 rounded-[32px] shadow-2xl max-w-lg w-full p-8 relative animate-in zoom-in duration-300"
+        onClick={(e) => e.stopPropagation()} 
       >
-        {/* Header */}
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-semibold">{title}</h3>
+        {/* Glow Effect */}
+        <div className="absolute -top-6 -left-6 w-32 h-32 bg-cyan-500/20 blur-[60px] -z-10 rounded-full"></div>
+
+        {/* Header Section */}
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h3 className="text-xl font-black text-white uppercase tracking-tighter">{title}</h3>
+            <div className="h-1 w-10 bg-[#00D7FF] rounded-full mt-1 shadow-[0_0_10px_rgba(0,215,255,0.5)]"></div>
+          </div>
           <button
             onClick={onClose}
-            aria-label="Close modal"
-            className="text-gray-600 hover:text-gray-900 text-xl font-bold"
+            className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-800 text-slate-400 hover:text-white transition-all duration-200"
           >
-            &times;
+            <X size={18} />
           </button>
         </div>
 
-        {/* Modal Content */}
-        <div>{children}</div>
+        {/* Modal Content - Yahan buttons aap form ke andar handle karenge */}
+        <div className="text-slate-300">
+          {children}
+        </div>
       </div>
     </div>
   );
